@@ -11,10 +11,11 @@ public class Calculator extends Frame {
 
     String digitButtonText[] = {"7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "+/-", "." };
     String operationButtonText[] = {"/", "sqrt", "*", "%", "-", "1/X", "+", "=" };
-    String specialButtonText[] = {"Backspc", "C", "CE" };
+    String specialButtonText[] = {"Backspc", "C"};
 
     DigitButton digitButton[] = new DigitButton[digitButtonText.length];
     OperationButton operationButton[] = new OperationButton[operationButtonText.length];
+    SpecialButton specialButton[] = new SpecialButton[specialButtonText.length];
 
     Label displayLabel = new Label("0",Label.RIGHT);
     Label memLabel = new Label(" ",Label.RIGHT);
@@ -28,7 +29,7 @@ public class Calculator extends Frame {
 
         int tempX = TOPX,y = TOPY;
         displayLabel.setBounds(tempX,y,240,HEIGHT);
-        displayLabel.setBackground(Color.GRAY);
+        displayLabel.setBackground(Color.WHITE);
         displayLabel.setBackground(Color.BLUE);
         add(displayLabel);
 
@@ -65,6 +66,16 @@ public class Calculator extends Frame {
                 tempX = opX;
                 y+=HEIGHT+V_SPACE;
             }
+        }
+
+        // Set more Buttons
+        tempX = TOPX + (WIDTH+H_SPACE);
+        y = TOPY + (HEIGHT + V_SPACE);
+        for(int i=0;i<specialButton.length;i++)
+        {
+            specialButton[i]=new SpecialButton(tempX,y,WIDTH*2,HEIGHT,specialButtonText[i], this);
+            specialButton[i].setForeground(Color.RED);
+            tempX=tempX+2*WIDTH+H_SPACE;
         }
 
         addWindowListener(new WindowAdapter()
@@ -129,6 +140,8 @@ class DigitButton extends Button implements ActionListener{
             return;
         }
 
+        if(index==0 && cl.displayLabel.getText().equals("0")) return;
+
         if(cl.setClear){
             cl.displayLabel.setText(""+index);
             cl.setClear=false;
@@ -158,16 +171,13 @@ class OperationButton extends Button implements ActionListener{
 
         if(opText.equals("1/x")){
             try{
-                double tempd = 1/(double)temp;
+                double tempd = 1/ temp;
                 cl.displayLabel.setText(Calculator.getFormattedText(tempd));
             }
             catch (ArithmeticException excp){
                 cl.displayLabel.setText("Divide by 0");
             }
-        }
-        if(!opText.equals("=")){
-            cl.number = temp;
-            cl.Operation = opText.charAt(0);
+            return;
         }
         if(opText.equals("sqrt")){
             try{
@@ -177,31 +187,89 @@ class OperationButton extends Button implements ActionListener{
             catch (ArithmeticException excp){
                 cl.displayLabel.setText("Divide by 0 or Negative number");
             }
+            return;
+        }
+        if(!opText.equals("=")){
+            cl.number = temp;
+            cl.Operation = opText.charAt(0);
+            return;
         }
 
-        if(opText.equals("-")){
-            temp = cl.number - temp;
-        }
-        if(opText.equals("*")){
-            temp *= cl.number;
-        }
-        if(opText.equals("%")){
-            try {
-                temp = cl.number % temp;
-            }
-            catch (ArithmeticException excp){
-                cl.displayLabel.setText("Divide by 0");
-            }
-        }
-        if(opText.equals("/")){
-            try {
-                temp = cl.number/temp;
-            }
-            catch (ArithmeticException excp) {
-                cl.displayLabel.setText("Divide by 0");
-            }
+        switch (cl.Operation){
+
+            case '+' :
+                temp+=cl.number;break;
+
+            case '-' :
+                temp = cl.number - temp;break;
+
+            case '*' :
+                temp *= cl.number;break;
+
+            case '/' :
+                try {
+                    temp=cl.number/temp;
+                }
+                catch (ArithmeticException excp){
+                    cl.displayLabel.setText("Divide by 0");
+                    return;
+                }
+                break;
+
+            case '%' :
+                try {
+                    temp = cl.number % temp;
+                }
+                catch (ArithmeticException excp){
+                    cl.displayLabel.setText("Divide by 0");
+                    return;
+                }
+                break;
         }
 
         cl.displayLabel.setText(Calculator.getFormattedText(temp));
+    }
+}
+
+class SpecialButton extends Button implements ActionListener{
+    Calculator cl;
+
+    SpecialButton(int x,int y,int width,int height,String cap,Calculator clc){
+        super(cap);
+        setBounds(x,y,width,height);
+        this.cl=clc;
+        this.cl.add(this);
+        addActionListener(this);
+    }
+
+    static String backSpace(String s){
+        String x="";
+        for(int i=0;i<s.length()-1;i++) x+=s.charAt(i);
+        return  x;
+    }
+
+    public void actionPerformed(ActionEvent ev){
+        String opText = ((SpecialButton)ev.getSource()).getLabel();
+
+        if(opText.equals("Backspc")){
+            String tempText = backSpace(cl.displayLabel.getText());
+            if(tempText.equals("")){
+                cl.displayLabel.setText("0");
+            }
+            else{
+                cl.displayLabel.setText(tempText);
+            }
+            return;
+        }
+
+        if(opText.equals("C")){
+            cl.number =0.0;
+            cl.Operation=' ';
+            cl.memValue=0.0;
+            cl.memLabel.setText(" ");
+        }
+
+        cl.displayLabel.setText("0");
+        cl.setClear = true;
     }
 }
