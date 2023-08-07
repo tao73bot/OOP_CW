@@ -29,8 +29,7 @@ public class Calculator extends Frame {
 
         int tempX = TOPX,y = TOPY;
         displayLabel.setBounds(tempX,y,240,HEIGHT);
-        displayLabel.setBackground(Color.WHITE);
-        displayLabel.setBackground(Color.BLUE);
+        displayLabel.setBackground(Color.white);
         add(displayLabel);
 
         memLabel.setBounds(TOPX,  TOPY+HEIGHT+ V_SPACE,WIDTH, HEIGHT);
@@ -169,7 +168,7 @@ class OperationButton extends Button implements ActionListener{
 
         double temp = Double.parseDouble(cl.displayLabel.getText());
 
-        if(opText.equals("1/x")){
+        if(opText.equals("1/X")){
             try{
                 double tempd = 1/ temp;
                 cl.displayLabel.setText(Calculator.getFormattedText(tempd));
